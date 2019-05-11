@@ -17,9 +17,9 @@
 %error-verbose
 %start program //change from input
 
-%token <ival> ID
+//%token <ival> ID
 
-%token SUB ADD MULT DIV MOD END
+%token SUB ADD MULT DIV MOD //END
 %token L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET
 %token GT GTE LT LTE EQ NEQ
 %token SEMICOLON COLON COMMA ASSIGN
@@ -27,7 +27,7 @@
 %token OF IF THEN ENDIF ELSE WHILE DO FOREACH IN BEGINLOOP ENDLOOP CONTINUE READ WRITE AND OR NOT TRUE FALSE RETURN
 %token <dval> NUMBER
 %token <cval> CHARACTER
-%type <dval> exp
+//%type <dval> exp
 %left SUB ADD
 %left  MULT DIV MOD
 %left GT GTE LT LTE EQ NEQ
@@ -76,10 +76,10 @@ declarations:
             {printf("declarations -> declaration SEMICOLON declarations\n");}
 ;
 
-identifiers: id
-            {printf("identifiers -> id\n");}
-            | id COMMA identifiers
-            {printf("identifiers -> id COMMA identifiers\n");}
+ID: id
+            {printf("ID -> id\n");}
+            | id COMMA ID
+            {printf("ID -> id COMMA ID\n");}
 ;
 
 statements: statement SEMICOLON statements
@@ -160,7 +160,7 @@ term: var
             {printf("term -> NUMBER %d\n", $1);}
             | SUB NUMBER
             {printf("term -> SUB NUMBER %d\n", $2);}
-            | L_PAREN Expression R_PAREN
+            | L_PAREN expression R_PAREN
             {printf("term -> L_PAREN expression R_PAREN\n");}
             | SUB L_PAREN expression R_PAREN
             {printf("term -> SUB L_PAREN expression R_PAREN\n");}
@@ -211,8 +211,8 @@ comp: EQ
             {printf("comp -> GTE\n");}
 ;
 
-id:     ID
-            {printf("id -> ID %s \n", $1);}
+id:     CHARACTER
+            {printf("id -> CHARACTER %s \n", $1);}
 ;
 %%
 

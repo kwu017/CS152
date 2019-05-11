@@ -1158,7 +1158,7 @@ case 55:
 /* rule 55 can match eol */
 YY_RULE_SETUP
 #line 113 "mini_l.lex"
-{currLine++; currPos = 1; return END;}
+{currLine++; currPos = 1;}
 	YY_BREAK
 case 56:
 YY_RULE_SETUP

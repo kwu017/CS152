@@ -44,53 +44,52 @@
      MULT = 260,
      DIV = 261,
      MOD = 262,
-     END = 263,
-     L_PAREN = 264,
-     R_PAREN = 265,
-     L_SQUARE_BRACKET = 266,
-     R_SQUARE_BRACKET = 267,
-     GT = 268,
-     GTE = 269,
-     LT = 270,
-     LTE = 271,
-     EQ = 272,
-     NEQ = 273,
-     SEMICOLON = 274,
-     COLON = 275,
-     COMMA = 276,
-     ASSIGN = 277,
-     FUNCTION = 278,
-     BEGIN_PARAMS = 279,
-     END_PARAMS = 280,
-     BEGIN_LOCALS = 281,
-     END_LOCALS = 282,
-     BEGIN_BODY = 283,
-     END_BODY = 284,
-     INTEGER = 285,
-     ARRAY = 286,
-     OF = 287,
-     IF = 288,
-     THEN = 289,
-     ENDIF = 290,
-     ELSE = 291,
-     WHILE = 292,
-     DO = 293,
-     FOREACH = 294,
-     IN = 295,
-     BEGINLOOP = 296,
-     ENDLOOP = 297,
-     CONTINUE = 298,
-     READ = 299,
-     WRITE = 300,
-     AND = 301,
-     OR = 302,
-     NOT = 303,
-     TRUE = 304,
-     FALSE = 305,
-     RETURN = 306,
-     NUMBER = 307,
-     CHARACTER = 308,
-     UMINUS = 309
+     L_PAREN = 263,
+     R_PAREN = 264,
+     L_SQUARE_BRACKET = 265,
+     R_SQUARE_BRACKET = 266,
+     GT = 267,
+     GTE = 268,
+     LT = 269,
+     LTE = 270,
+     EQ = 271,
+     NEQ = 272,
+     SEMICOLON = 273,
+     COLON = 274,
+     COMMA = 275,
+     ASSIGN = 276,
+     FUNCTION = 277,
+     BEGIN_PARAMS = 278,
+     END_PARAMS = 279,
+     BEGIN_LOCALS = 280,
+     END_LOCALS = 281,
+     BEGIN_BODY = 282,
+     END_BODY = 283,
+     INTEGER = 284,
+     ARRAY = 285,
+     OF = 286,
+     IF = 287,
+     THEN = 288,
+     ENDIF = 289,
+     ELSE = 290,
+     WHILE = 291,
+     DO = 292,
+     FOREACH = 293,
+     IN = 294,
+     BEGINLOOP = 295,
+     ENDLOOP = 296,
+     CONTINUE = 297,
+     READ = 298,
+     WRITE = 299,
+     AND = 300,
+     OR = 301,
+     NOT = 302,
+     TRUE = 303,
+     FALSE = 304,
+     RETURN = 305,
+     NUMBER = 306,
+     CHARACTER = 307,
+     UMINUS = 308
    };
 #endif
 /* Tokens.  */
@@ -99,53 +98,52 @@
 #define MULT 260
 #define DIV 261
 #define MOD 262
-#define END 263
-#define L_PAREN 264
-#define R_PAREN 265
-#define L_SQUARE_BRACKET 266
-#define R_SQUARE_BRACKET 267
-#define GT 268
-#define GTE 269
-#define LT 270
-#define LTE 271
-#define EQ 272
-#define NEQ 273
-#define SEMICOLON 274
-#define COLON 275
-#define COMMA 276
-#define ASSIGN 277
-#define FUNCTION 278
-#define BEGIN_PARAMS 279
-#define END_PARAMS 280
-#define BEGIN_LOCALS 281
-#define END_LOCALS 282
-#define BEGIN_BODY 283
-#define END_BODY 284
-#define INTEGER 285
-#define ARRAY 286
-#define OF 287
-#define IF 288
-#define THEN 289
-#define ENDIF 290
-#define ELSE 291
-#define WHILE 292
-#define DO 293
-#define FOREACH 294
-#define IN 295
-#define BEGINLOOP 296
-#define ENDLOOP 297
-#define CONTINUE 298
-#define READ 299
-#define WRITE 300
-#define AND 301
-#define OR 302
-#define NOT 303
-#define TRUE 304
-#define FALSE 305
-#define RETURN 306
-#define NUMBER 307
-#define CHARACTER 308
-#define UMINUS 309
+#define L_PAREN 263
+#define R_PAREN 264
+#define L_SQUARE_BRACKET 265
+#define R_SQUARE_BRACKET 266
+#define GT 267
+#define GTE 268
+#define LT 269
+#define LTE 270
+#define EQ 271
+#define NEQ 272
+#define SEMICOLON 273
+#define COLON 274
+#define COMMA 275
+#define ASSIGN 276
+#define FUNCTION 277
+#define BEGIN_PARAMS 278
+#define END_PARAMS 279
+#define BEGIN_LOCALS 280
+#define END_LOCALS 281
+#define BEGIN_BODY 282
+#define END_BODY 283
+#define INTEGER 284
+#define ARRAY 285
+#define OF 286
+#define IF 287
+#define THEN 288
+#define ENDIF 289
+#define ELSE 290
+#define WHILE 291
+#define DO 292
+#define FOREACH 293
+#define IN 294
+#define BEGINLOOP 295
+#define ENDLOOP 296
+#define CONTINUE 297
+#define READ 298
+#define WRITE 299
+#define AND 300
+#define OR 301
+#define NOT 302
+#define TRUE 303
+#define FALSE 304
+#define RETURN 305
+#define NUMBER 306
+#define CHARACTER 307
+#define UMINUS 308
 
 
 
@@ -159,7 +157,7 @@ typedef union YYSTYPE
   char* cval;
 }
 /* Line 1529 of yacc.c.  */
-#line 163 "y.tab.h"
+#line 161 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
