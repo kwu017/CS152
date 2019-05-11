@@ -87,9 +87,8 @@
      TRUE = 303,
      FALSE = 304,
      RETURN = 305,
-     NUMBER = 306,
-     CHARACTER = 307,
-     UMINUS = 308
+     IDENT = 306,
+     NUMBER = 307
    };
 #endif
 /* Tokens.  */
@@ -141,23 +140,22 @@
 #define TRUE 303
 #define FALSE 304
 #define RETURN 305
-#define NUMBER 306
-#define CHARACTER 307
-#define UMINUS 308
+#define IDENT 306
+#define NUMBER 307
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 11 "mini_l.y"
+#line 12 "mini_l.y"
 {
-  double dval;
-  int ival;
-  char* cval;
-}
+      double dval;
+      int ival;
+      char* cval;
+ }
 /* Line 1529 of yacc.c.  */
-#line 161 "y.tab.h"
+#line 159 "y.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

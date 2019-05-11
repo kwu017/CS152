@@ -1,51 +1,52 @@
- /* cs152-spring2019 */
+/* cs152-spring2019 */
    /* A flex scanner speicification for the mini-lex language */
    /* Based on code given in lab by Dennis Jeffrey */
    /* Written by Kim Wu, Alic Lien*/
 
 /* Item Counters */
-%{   
-   #include "y.tab.h"
-   int currLine = 1, currPos = 1;
-   int numChar = 0;
-   int numNumbers = 0;
-   int numOperators = 0;
-   int numParens = 0;
-   int numEquals = 0;
+%{
+  #include "y.tab.h"
+  
+  int currLine = 1, currPos = 1;
+  int numChar = 0;
+  int numNumbers = 0;
+  int numOperators = 0;
+  int numParens = 0;
+  int numEquals = 0;
 %}
 
 /* Input digits and characters */
-DIGIT    [0-9]
+DIGIT [0-9]
 DIGIT_UNDERSCORE [0-9_]
-LETTER   [a-zA-Z]
+LETTER [a-zA-Z]
 LETTER_UNDERSCORE [a-zA-Z_]
 CHAR [0-9a-zA-Z_]
 ALPHANUMBER [0-9a-zA-Z]
-   
+
 %%
 
-"-"            {currPos += yyleng; numOperators++; return SUB;}
-"+"            {currPos += yyleng; numOperators++; return ADD;}
-"*"            {currPos += yyleng; numOperators++; return MULT;}
-"/"            {currPos += yyleng; numOperators++; return DIV;}
-"%"	       {currPos += yyleng; numOperators++; return MOD;}
+"-"             {currPos += yyleng; return SUB;} //return SUB; currPos++;
+"+"             {currPos += yyleng; return ADD;} //return ADD; currPos++;
+"*"             {currPos += yyleng; return MULT;} //return MULT; currPos++;
+"/"             {currPos += yyleng; return DIV;} //return DIV; currPos++;
+"%"             {currPos += yyleng; return MOD;} //return MOD; currPos++;
 
-"("            {currPos += yyleng; numParens++; return L_PAREN;}
-")"            {currPos += yyleng; numParens++; return R_PAREN;}
-"["	       {currPos += yyleng; numParens++; return L_SQUARE_BRACKET;}
-"]"	       {currPos += yyleng; numParens++; return R_SQUARE_BRACKET;}
+"("             {currPos += yyleng; return L_PAREN;}
+")"             {currPos += yyleng; return R_PAREN;}
+"["             {currPos += yyleng; return L_SQUARE_BRACKET;}
+"]"             {currPos += yyleng; return R_SQUARE_BRACKET;}
 
-">"	       {currPos += yyleng; numOperators++; return GT;}
-">="	       {currPos += yyleng; numOperators++; return GTE;}
-"<"	       {currPos += yyleng; numOperators++; return LT;}
-"<="	       {currPos += yyleng; numOperators++; return LTE;}
-"=="	       {currPos += yyleng; numOperators++; return EQ;}
-"<>"	       {currPos += yyleng; numOperators++; return NEQ;}
+">"             {currPos += yyleng; return GT;}
+">="            {currPos += yyleng; return GTE;}
+"<"             {currPos += yyleng; return LT;}
+"<="            {currPos += yyleng; return LTE;}
+"=="            {currPos += yyleng; return EQ;}
+"<>"            {currPos += yyleng; return NEQ;}
 
-";"	       {currPos += yyleng; numOperators++; return SEMICOLON;}
-":"	       {currPos += yyleng; numOperators++; return COLON;}
-","	       {currPos += yyleng; numOperators++; return COMMA;}
-":="	       {currPos += yyleng; numOperators++; return ASSIGN;}
+";"             {currPos += yyleng; return SEMICOLON;}
+":"             {currPos += yyleng; return COLON;}
+","             {currPos += yyleng; return COMMA;}
+":="            {currPos += yyleng; return ASSIGN;}
 
 "function"     {currPos += yyleng; return FUNCTION;}
 "beginparams"  {currPos += yyleng; return BEGIN_PARAMS;}
@@ -55,31 +56,31 @@ ALPHANUMBER [0-9a-zA-Z]
 "beginbody"    {currPos += yyleng; return BEGIN_BODY;}
 "endbody"      {currPos += yyleng; return END_BODY;}
 "integer"      {currPos += yyleng; return INTEGER;}
-"array"	       {currPos += yyleng; return ARRAY;}
-"of"	       {currPos += yyleng; return OF;}
-"if"	       {currPos += yyleng; return IF;}
-"then"	       {currPos += yyleng; return THEN;}
-"endif"	       {currPos += yyleng; return ENDIF;}
-"else"	       {currPos += yyleng; return ELSE;}
-"while"	       {currPos += yyleng; return WHILE;}
-"do"	       {currPos += yyleng; return DO;}
+"array"        {currPos += yyleng; return ARRAY;}
+"of"           {currPos += yyleng; return OF;}
+"if"           {currPos += yyleng; return IF;}
+"then"         {currPos += yyleng; return THEN;}
+"endif"        {currPos += yyleng; return ENDIF;}
+"else"         {currPos += yyleng; return ELSE;}
+"while"        {currPos += yyleng; return WHILE;}
+"do"           {currPos += yyleng; return DO;}
 "foreach"      {currPos += yyleng; return FOREACH;}
-"in"	       {currPos += yyleng; return IN;}
+"in"           {currPos += yyleng; return IN;}
 "beginloop"    {currPos += yyleng; return BEGINLOOP;}
 "endloop"      {currPos += yyleng; return ENDLOOP;}
 "continue"     {currPos += yyleng; return CONTINUE;}
 "read"         {currPos += yyleng; return READ;}
-"write"	       {currPos += yyleng; return WRITE;}
-"and"	       {currPos += yyleng; return AND;}
-"or"	       {currPos += yyleng; return OR;}
-"not"	       {currPos += yyleng; return NOT;}
-"true"	       {currPos += yyleng; return TRUE;}
-"false"	       {currPos += yyleng; return FALSE;}
+"write"        {currPos += yyleng; return WRITE;}
+"and"          {currPos += yyleng; return AND;}
+"or"           {currPos += yyleng; return OR;}
+"not"          {currPos += yyleng; return NOT;}
+"true"         {currPos += yyleng; return TRUE;}
+"false"        {currPos += yyleng; return FALSE;}
 "return"       {currPos += yyleng; return RETURN;}
 
 ({DIGIT}+) {
     currPos += yyleng;
-    yylval.dval = atof(yytext);
+    yylval.ival = atoi(yytext);
     numNumbers++;
     return NUMBER;
 }
@@ -88,7 +89,7 @@ ALPHANUMBER [0-9a-zA-Z]
     currPos += yyleng;
     yylval.cval = yytext;
     numChar++;
-    return CHARACTER;
+    return IDENT;
 }
 
 ({DIGIT}+{LETTER_UNDERSCORE}{CHAR}*)|("_"{CHAR}+) {
@@ -108,10 +109,12 @@ ALPHANUMBER [0-9a-zA-Z]
    return NUMBER;
 }
 
-[ \t]+         {/* ignore spaces */ currPos += yyleng;}
+[ \t]+           {/* ignore spaces */ currPos += yyleng;}
 
-"\n"           {currLine++; currPos = 1;}
+"##".*           {currLine++; currPos = 1;}
 
-.              {printf("Error at line %d, column %d: unrecognized symbol \"%s\"\n", currLine, currPos, yytext); exit(0);}
+"\n"             {currLine++; currPos = 1;}
+
+.                {printf("Error at line %d, column %d: unrecognized symbol \"%s\"\n", currLine, currPos, yytext); exit(0);}
 
 %%
