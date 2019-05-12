@@ -50,6 +50,7 @@ exp:        NUMBER                { $$ = $1; }
                   | L_PAREN exp R_PAREN { $$ = $2; }
                   ;
     */
+
 //grammar goes here
 
 functions:
@@ -91,8 +92,8 @@ statements:
             ;
 
 statement:      
-            variable ASSIGN expression
-            {printf("statement -> variable ASSIGN expression\n");}
+            var ASSIGN expression
+            {printf("statement -> var ASSIGN expression\n");}
                  | IF bool_expr THEN statements else_statement ENDIF
             {printf("statement -> IF bool_expr THEN statements else_statement ENDIF\n");}          
                  | WHILE bool_expr BEGINLOOP statements ENDLOOP
@@ -101,10 +102,10 @@ statement:
             {printf("statement -> DO BEGINLOOP statements ENDLOOP WHILE bool_expr\n");}
                  | FOREACH ident IN ident BEGINLOOP statements ENDLOOP
             {printf("statement -> FOREACH ident IN ident BEGINLOOP statements ENDLOOP\n");}
-                 | READ variables
-            {printf("statement -> READ variables\n");}
-                 | WRITE variables
-            {printf("statement -> WRITE variables\n");}
+                 | READ vars
+            {printf("statement -> READ vars\n");}
+                 | WRITE vars
+            {printf("statement -> WRITE vars\n");}
                  | CONTINUE
             {printf("statement -> CONTINUE\n");}
                  | RETURN expression
@@ -117,27 +118,27 @@ else_statement:
             {printf("else_statement -> ELSE statements\n");}
             ;
 
-variable:            
+var:            
             ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-            {printf("variable -> ident  L_SQUARE_BRACKET expression R_SQUARE_BRACKET\n");}
+            {printf("var -> ident  L_SQUARE_BRACKET expression R_SQUARE_BRACKET\n");}
                  | ident
-            {printf("variable -> ident \n");}
+            {printf("var -> ident \n");}
             ;
 
-variables:            
-            variable
-            {printf("variables -> variable\n");}
-                 | variable COMMA variables
-            {printf("variables -> variable COMMA variables\n");}
+vars:            
+            var
+            {printf("vars -> var\n");}
+                 | var COMMA vars
+            {printf("vars -> var COMMA vars\n");}
             ;
 
 expression:      
-            mult_expr
-            {printf("expression -> mult_expr\n");}
-                 | mult_expr ADD expression
-            {printf("expression -> mult_expr ADD expression\n");}
-                 | mult_expr SUB expression
-            {printf("expression -> mult_expr SUB expression\n");}
+            multiplicative_expr
+            {printf("expression -> multiplicaptive_expr\n");}
+                 | multiplicative_expr ADD expression
+            {printf("expression -> multiplicative_expr ADD expression\n");}
+                 | multiplicative_expr SUB expression
+            {printf("expression -> multiplicative_expr SUB expression\n");}
             ;
 
 expressions:     
@@ -148,22 +149,22 @@ expressions:
             {printf("expressions -> expression\n");}
             ;
 
-mult_expr:         
+multiplicative_expr:         
             term
-            {printf("mult_expr -> term\n");}
-                 | term MULT mult_expr
-            {printf("mult_expr -> term MULT mult_expr\n");}
-                 | term DIV mult_expr
-            {printf("mult_expr -> term DIV mult_expr\n");}
-                 | term MOD mult_expr
-            {printf("mult_expr -> term MOD mult_expr\n");}
+            {printf("multiplicative_expr -> term\n");}
+                 | term MULT multiplicative_expr
+            {printf("multiplicative_expr -> term MULT multiplicative_expr\n");}
+                 | term DIV multiplicative_expr
+            {printf("multiplicative_expr -> term DIV multiplicative_expr\n");}
+                 | term MOD multiplicative_expr
+            {printf("multiplicative_expr -> term MOD multiplicative_expr\n");}
             ;
 
 term:            
-            variable
-            {printf("term -> variable\n");}
-                 | SUB variable
-            {printf("term -> SUB variable\n");}
+            var
+            {printf("term -> var\n");}
+                 | SUB var
+            {printf("term -> SUB var\n");}
                  | NUMBER
             {printf("term -> NUMBER %d\n", $1);}
                  | SUB NUMBER
