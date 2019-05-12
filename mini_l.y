@@ -60,12 +60,12 @@ functions:
             ;
 
 function:   
-            FUNCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY
+                  FUNCTION ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY
             {printf("function -> FUNCTION Ident SEMICOLON BEGIN_PARAMS declarations END_PARAMS BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY\n");}
             ;
 
 declaration:
-            identifiers COLON INTEGER
+                  identifiers COLON INTEGER
             {printf("declaration -> identifiers COLON INTEGER\n");}
                  | identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
             {printf("declaration -> identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER %d R_SQUARE_BRACKET OF INTEGER;\n", $5);}
@@ -78,21 +78,21 @@ declarations:
             ;
 
 identifiers:     
-            ident
+                  ident
             {printf("identifiers -> Ident \n");}
                  | ident COMMA identifiers
             {printf("identifiers -> ident COMMA identifiers\n");}
             ;
 
 statements:      
-            statement SEMICOLON statements
+                  statement SEMICOLON statements
             {printf("statements -> statement SEMICOLON statements\n");}
                  | statement SEMICOLON
             {printf("statements -> statement SEMICOLON\n");}
             ;
 
 statement:      
-            var ASSIGN expression
+                  var ASSIGN expression
             {printf("statement -> var ASSIGN expression\n");}
                  | IF bool_expr THEN statements else_statement ENDIF
             {printf("statement -> IF bool_expr THEN statements else_statement ENDIF\n");}          
@@ -119,21 +119,21 @@ else_statement:
             ;
 
 var:            
-            ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+                  ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
             {printf("var -> ident  L_SQUARE_BRACKET expression R_SQUARE_BRACKET\n");}
                  | ident
             {printf("var -> ident \n");}
             ;
 
 vars:            
-            var
+                  var
             {printf("vars -> var\n");}
                  | var COMMA vars
             {printf("vars -> var COMMA vars\n");}
             ;
 
 expression:      
-            multiplicative_expr
+                  multiplicative_expr
             {printf("expression -> multiplicaptive_expr\n");}
                  | multiplicative_expr ADD expression
             {printf("expression -> multiplicative_expr ADD expression\n");}
@@ -150,7 +150,7 @@ expressions:
             ;
 
 multiplicative_expr:         
-            term
+                  term
             {printf("multiplicative_expr -> term\n");}
                  | term MULT multiplicative_expr
             {printf("multiplicative_expr -> term MULT multiplicative_expr\n");}
@@ -161,7 +161,7 @@ multiplicative_expr:
             ;
 
 term:            
-            var
+                  var
             {printf("term -> var\n");}
                  | SUB var
             {printf("term -> SUB var\n");}
@@ -178,21 +178,21 @@ term:
             ;
 
 bool_expr:         
-            relation_and_expr 
+                  relation_and_expr 
             {printf("bool_expr -> relation_exp\n");}
                  | relation_and_expr OR bool_expr
             {printf("bool_expr -> relation_and_exp OR bool_expr\n");}
             ;
 
 relation_and_expr:           
-            relation_expr
+                  relation_expr
             {printf("relation_and_exp -> relation_exp\n");}
                  | relation_expr AND relation_and_expr
             {printf("relation_and_exp -> relation_exp AND relation_and_exp\n");}
             ;
 
 relation_expr:            
-            NOT relation_exp 
+                  NOT relation_exp 
             {printf("relation_exp -> NOT relation_exp1\n");}
                  | relation_exp
             {printf("relation_exp -> relation_exp1\n");}
@@ -200,7 +200,7 @@ relation_expr:
             ;
 
 relation_exp:           
-            expression comp expression
+                  expression comp expression
             {printf("relation_exp -> expression comp expression\n");}
                  | TRUE
             {printf("relation_exp -> TRUE\n");}
@@ -211,22 +211,22 @@ relation_exp:
             ;
 
 comp:            
-            EQ
+                  GT
+            {printf("comp -> GT\n");}
+                 | GTE
+            {printf("comp -> GTE\n");}
+                 | LT
+            {printf("comp -> LT\n");}
+                 | LTE
+            {printf("comp -> LTE\n");}
+                 | EQ
             {printf("comp -> EQ\n");}
                  | NEQ
             {printf("comp -> NEQ\n");}
-                 | LT
-            {printf("comp -> LT\n");}
-                 | GT
-            {printf("comp -> GT\n");}
-                 | LTE
-            {printf("comp -> LTE\n");}
-                 | GTE
-            {printf("comp -> GTE\n");}
             ;
 
 ident:      
-            IDENT
+                  IDENT
             {printf("ident -> IDENT %s \n", $1);}
             ;
 %%
