@@ -77,13 +77,6 @@ declarations:
             {printf("declarations -> declaration SEMICOLON declarations\n");}
             ;
 
-identifiers:     
-                  ident
-            {printf("identifiers -> Ident \n");}
-                 | ident COMMA identifiers
-            {printf("identifiers -> ident COMMA identifiers\n");}
-            ;
-
 statements:      
                   statement SEMICOLON statements
             {printf("statements -> statement SEMICOLON statements\n");}
@@ -116,65 +109,6 @@ else_statement:
             {printf("else_statement -> ε\n");}
                  | ELSE statements
             {printf("else_statement -> ELSE statements\n");}
-            ;
-
-var:            
-                  ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-            {printf("var -> ident  L_SQUARE_BRACKET expression R_SQUARE_BRACKET\n");}
-                 | ident
-            {printf("var -> ident \n");}
-            ;
-
-vars:            
-                  var
-            {printf("vars -> var\n");}
-                 | var COMMA vars
-            {printf("vars -> var COMMA vars\n");}
-            ;
-
-expression:      
-                  multiplicative_expr
-            {printf("expression -> multiplicaptive_expr\n");}
-                 | multiplicative_expr ADD expression
-            {printf("expression -> multiplicative_expr ADD expression\n");}
-                 | multiplicative_expr SUB expression
-            {printf("expression -> multiplicative_expr SUB expression\n");}
-            ;
-
-expressions:     
-            {printf("expressions -> ε\n");}
-                 | expression COMMA expressions
-            {printf("expressions -> expression COMMA expressions\n");}
-                 | expression
-            {printf("expressions -> expression\n");}
-            ;
-
-multiplicative_expr:         
-                  term
-            {printf("multiplicative_expr -> term\n");}
-                 | term MULT multiplicative_expr
-            {printf("multiplicative_expr -> term MULT multiplicative_expr\n");}
-                 | term DIV multiplicative_expr
-            {printf("multiplicative_expr -> term DIV multiplicative_expr\n");}
-                 | term MOD multiplicative_expr
-            {printf("multiplicative_expr -> term MOD multiplicative_expr\n");}
-            ;
-
-term:            
-                  var
-            {printf("term -> var\n");}
-                 | SUB var
-            {printf("term -> SUB var\n");}
-                 | NUMBER
-            {printf("term -> NUMBER %d\n", $1);}
-                 | SUB NUMBER
-            {printf("term -> SUB NUMBER %d\n", $2);}
-                 | L_PAREN expression R_PAREN
-            {printf("term -> L_PAREN expression R_PAREN\n");}
-                 | SUB L_PAREN expression R_PAREN
-            {printf("term -> SUB L_PAREN expression R_PAREN\n");}
-                 | ident L_PAREN expressions R_PAREN
-            {printf("term -> ident L_PAREN expressions R_PAREN\n");}
             ;
 
 bool_expr:         
@@ -223,6 +157,72 @@ comp:
             {printf("comp -> EQ\n");}
                  | NEQ
             {printf("comp -> NEQ\n");}
+            ;
+
+expression:      
+                  multiplicative_expr
+            {printf("expression -> multiplicaptive_expr\n");}
+                 | multiplicative_expr ADD expression
+            {printf("expression -> multiplicative_expr ADD expression\n");}
+                 | multiplicative_expr SUB expression
+            {printf("expression -> multiplicative_expr SUB expression\n");}
+            ;
+
+expressions:     
+            {printf("expressions -> ε\n");}
+                 | expression COMMA expressions
+            {printf("expressions -> expression COMMA expressions\n");}
+                 | expression
+            {printf("expressions -> expression\n");}
+            ;
+
+multiplicative_expr:         
+                  term
+            {printf("multiplicative_expr -> term\n");}
+                 | term MULT multiplicative_expr
+            {printf("multiplicative_expr -> term MULT multiplicative_expr\n");}
+                 | term DIV multiplicative_expr
+            {printf("multiplicative_expr -> term DIV multiplicative_expr\n");}
+                 | term MOD multiplicative_expr
+            {printf("multiplicative_expr -> term MOD multiplicative_expr\n");}
+            ;
+
+var:            
+                  ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+            {printf("var -> ident  L_SQUARE_BRACKET expression R_SQUARE_BRACKET\n");}
+                 | ident
+            {printf("var -> ident \n");}
+            ;
+
+vars:            
+                  var
+            {printf("vars -> var\n");}
+                 | var COMMA vars
+            {printf("vars -> var COMMA vars\n");}
+            ;
+
+term:            
+                  var
+            {printf("term -> var\n");}
+                 | SUB var
+            {printf("term -> SUB var\n");}
+                 | NUMBER
+            {printf("term -> NUMBER %d\n", $1);}
+                 | SUB NUMBER
+            {printf("term -> SUB NUMBER %d\n", $2);}
+                 | L_PAREN expression R_PAREN
+            {printf("term -> L_PAREN expression R_PAREN\n");}
+                 | SUB L_PAREN expression R_PAREN
+            {printf("term -> SUB L_PAREN expression R_PAREN\n");}
+                 | ident L_PAREN expressions R_PAREN
+            {printf("term -> ident L_PAREN expressions R_PAREN\n");}
+            ;
+
+identifiers:     
+                  ident
+            {printf("identifiers -> Ident \n");}
+                 | ident COMMA identifiers
+            {printf("identifiers -> ident COMMA identifiers\n");}
             ;
 
 ident:      
