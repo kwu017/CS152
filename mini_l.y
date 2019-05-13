@@ -16,7 +16,7 @@
  }
 
 %error-verbose
-%start functions //input
+%start prog_start //functions //input
 
 %token SUB ADD MULT DIV MOD //END
 %token L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET
@@ -52,6 +52,11 @@ exp:        NUMBER                { $$ = $1; }
     */
 
 //grammar goes here
+
+prog_start:
+                  functions
+                  {printf("prog_start -> functions\n");}
+                  ;
 
 functions:
             {printf("functions -> ε\n");}
