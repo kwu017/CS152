@@ -33,23 +33,10 @@
 %left AND OR
 %right NOT
 
-%% /*
-input:      
-                  | input line
-                  ;
+%type <statement_IR> statement statements else_statement
+%type <expression_IR> declaration declarations bool_expr relation_and_expr relation_expr relation_exp comp expression expressions multiplicative_expr var vars term identifiers ident
 
-line:       exp ASSIGN END         { printf("\t%f\n", $1);}
-                  ;
-
-exp:        NUMBER                { $$ = $1; }
-                  | exp ADD exp         { $$ = $1 + $3; }
-                  | exp SUB exp         { $$ = $1 - $3; }
-                  | exp MULT exp        { $$ = $1 * $3; }
-                  | exp DIV exp         { if ($3==0) yyerror("divide by zero"); else $$ = $1 / $3; }
-                  | SUB exp %prec UMINUS { $$ = -$2; }
-                  | L_PAREN exp R_PAREN { $$ = $2; }
-                  ;
-    */
+%% 
 
 //grammar goes here
 
