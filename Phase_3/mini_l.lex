@@ -5,14 +5,23 @@
 
 /* Item Counters */
 %{
-  #include "y.tab.h"
+    #include <iostream>
+    #define YY_DECL yy::parser::symbol_type yylex()
+    #include "parser.tab.h"
+    
+    using namespace std;
+
+	static yy::location loc;
   
-  int currLine = 1, currPos = 1;
-  int numChar = 0;
-  int numNumbers = 0;
-  int numOperators = 0;
-  int numParens = 0;
-  int numEquals = 0;
+    int currLine = 1, currPos = 1;
+    int numChar = 0;
+    int numNumbers = 0;
+%}
+
+%option noyywrap
+
+%{
+	#define YY_USER_ACTION loc.columns(yyleng);
 %}
 
 /* Input digits and characters */
@@ -25,71 +34,71 @@ ALPHANUMBER [0-9a-zA-Z]
 
 %%
 
-"-"             {currPos += yyleng; return SUB;} //return SUB; currPos++;
-"+"             {currPos += yyleng; return ADD;} //return ADD; currPos++;
-"*"             {currPos += yyleng; return MULT;} //return MULT; currPos++;
-"/"             {currPos += yyleng; return DIV;} //return DIV; currPos++;
-"%"             {currPos += yyleng; return MOD;} //return MOD; currPos++;
+%{
+    loc.step(); 
+%}
 
-"("             {currPos += yyleng; return L_PAREN;}
-")"             {currPos += yyleng; return R_PAREN;}
-"["             {currPos += yyleng; return L_SQUARE_BRACKET;}
-"]"             {currPos += yyleng; return R_SQUARE_BRACKET;}
+"-"             {currPos += yyleng; return yy::parser::make_SUB(loc);} //return SUB; currPos++;
+"+"             {currPos += yyleng; return yy::parser::make_ADD(loc);} //return ADD; currPos++;
+"*"             {currPos += yyleng; return yy::parser::make_MULT(loc);} //return MULT; currPos++;
+"/"             {currPos += yyleng; return yy::parser::make_DIV(loc);} //return DIV; currPos++;
+"%"             {currPos += yyleng; return yy::parser::make_MOD(loc);} //return MOD; currPos++;
 
-">"             {currPos += yyleng; return GT;}
-">="            {currPos += yyleng; return GTE;}
-"<"             {currPos += yyleng; return LT;}
-"<="            {currPos += yyleng; return LTE;}
-"=="            {currPos += yyleng; return EQ;}
-"<>"            {currPos += yyleng; return NEQ;}
+"("             {currPos += yyleng; return yy::parser::make_L_PAREN(loc);}
+")"             {currPos += yyleng; return yy::parser::make_R_PAREN(loc);}
+"["             {currPos += yyleng; return yy::parser::make_L_SQUARE_BRACKET(loc);}
+"]"             {currPos += yyleng; return yy::parser::make_R_SQUARE_BRACKET(loc);}
 
-";"             {currPos += yyleng; return SEMICOLON;}
-":"             {currPos += yyleng; return COLON;}
-","             {currPos += yyleng; return COMMA;}
-":="            {currPos += yyleng; return ASSIGN;}
+">"             {currPos += yyleng; return yy::parser::make_GT(loc);}
+">="            {currPos += yyleng; return yy::parser::make_GTE(loc);}
+"<"             {currPos += yyleng; return yy::parser::make_LT(loc);}
+"<="            {currPos += yyleng; return yy::parser::make_LTE(loc);}
+"=="            {currPos += yyleng; return yy::parser::make_EQ(loc);}
+"<>"            {currPos += yyleng; return yy::parser::make_NEQ(loc);}
 
-"function"      {currPos += yyleng; return FUNCTION;}
-"beginparams"   {currPos += yyleng; return BEGIN_PARAMS;}
-"endparams"     {currPos += yyleng; return END_PARAMS;}
-"beginlocals"   {currPos += yyleng; return BEGIN_LOCALS;}
-"endlocals"     {currPos += yyleng; return END_LOCALS;}
-"beginbody"     {currPos += yyleng; return BEGIN_BODY;}
-"endbody"       {currPos += yyleng; return END_BODY;}
-"integer"       {currPos += yyleng; return INTEGER;}
-"array"         {currPos += yyleng; return ARRAY;}
-"of"            {currPos += yyleng; return OF;}
-"if"            {currPos += yyleng; return IF;}
-"then"          {currPos += yyleng; return THEN;}
-"endif"         {currPos += yyleng; return ENDIF;}
-"else"          {currPos += yyleng; return ELSE;}
-"while"         {currPos += yyleng; return WHILE;}
-"do"            {currPos += yyleng; return DO;}
-"foreach"       {currPos += yyleng; return FOREACH;}
-"in"            {currPos += yyleng; return IN;}
-"beginloop"     {currPos += yyleng; return BEGINLOOP;}
-"endloop"       {currPos += yyleng; return ENDLOOP;}
-"continue"      {currPos += yyleng; return CONTINUE;}
-"read"          {currPos += yyleng; return READ;}
-"write"         {currPos += yyleng; return WRITE;}
-"and"           {currPos += yyleng; return AND;}
-"or"            {currPos += yyleng; return OR;}
-"not"           {currPos += yyleng; return NOT;}
-"true"          {currPos += yyleng; return TRUE;}
-"false"         {currPos += yyleng; return FALSE;}
-"return"        {currPos += yyleng; return RETURN;}
+";"             {currPos += yyleng; return yy::parser::make_SEMICOLON(loc);}
+":"             {currPos += yyleng; return yy::parser::make_COLON(loc);}
+","             {currPos += yyleng; return yy::parser::make_COMMA(loc);}
+":="            {currPos += yyleng; return yy::parser::make_ASSIGN(loc);}
+
+"function"      {currPos += yyleng; return yy::parser::make_FUNCTION(loc);}
+"beginparams"   {currPos += yyleng; return yy::parser::make_BEGIN_PARAMS(loc);}
+"endparams"     {currPos += yyleng; return yy::parser::make_END_PARAMS(loc);}
+"beginlocals"   {currPos += yyleng; return yy::parser::make_BEGIN_LOCALS(loc);}
+"endlocals"     {currPos += yyleng; return yy::parser::make_END_LOCALS(loc);}
+"beginbody"     {currPos += yyleng; return yy::parser::make_BEGIN_BODY(loc);}
+"endbody"       {currPos += yyleng; return yy::parser::make_END_BODY(loc);}
+"integer"       {currPos += yyleng; return yy::parser::make_INTEGER(loc);}
+"array"         {currPos += yyleng; return yy::parser::make_ARRAY(loc);}
+"of"            {currPos += yyleng; return yy::parser::make_OF(loc);}
+"if"            {currPos += yyleng; return yy::parser::make_IF(loc);}
+"then"          {currPos += yyleng; return yy::parser::make_THEN(loc);}
+"endif"         {currPos += yyleng; return yy::parser::make_ENDIF(loc);}
+"else"          {currPos += yyleng; return yy::parser::make_ELSE(loc);}
+"while"         {currPos += yyleng; return yy::parser::make_WHILE(loc);}
+"do"            {currPos += yyleng; return yy::parser::make_DO(loc);}
+"foreach"       {currPos += yyleng; return yy::parser::make_FOREACH(loc);}
+"in"            {currPos += yyleng; return yy::parser::make_IN(loc);}
+"beginloop"     {currPos += yyleng; return yy::parser::make_BEGINLOOP(loc);}
+"endloop"       {currPos += yyleng; return yy::parser::make_ENDLOOP(loc);}
+"continue"      {currPos += yyleng; return yy::parser::make_CONTINUE(loc);}
+"read"          {currPos += yyleng; return yy::parser::make_READ(loc);}
+"write"         {currPos += yyleng; return yy::parser::make_WRITE(loc);}
+"and"           {currPos += yyleng; return yy::parser::make_AND(loc);}
+"or"            {currPos += yyleng; return yy::parser::make_OR(loc);}
+"not"           {currPos += yyleng; return yy::parser::make_NOT(loc);}
+"true"          {currPos += yyleng; return yy::parser::make_TRUE(loc);}
+"false"         {currPos += yyleng; return yy::parser::make_FALSE(loc);}
+"return"        {currPos += yyleng; return yy::parser::make_RETURN(loc);}
 
 ({DIGIT}+) {
     currPos += yyleng;
-    yylval.ival = atoi(yytext);
-    numNumbers++;
-    return NUMBER;
+    return yy::parser::make_NUMBER(yytext, loc);
 }
 
 {LETTER}({CHAR}*{ALPHANUMBER}+)? {
     currPos += yyleng;
-    yylval.cval = yytext;
-    numChar++;
-    return IDENT;
+    return yy::parser::make_IDENT(yytext, loc);
 }
 
 ({DIGIT}+{LETTER_UNDERSCORE}{CHAR}*)|("_"{CHAR}+) {
@@ -102,13 +111,6 @@ ALPHANUMBER [0-9a-zA-Z]
     exit(1);
 }
 
-(\.{DIGIT}+)|({DIGIT}+(\.{DIGIT}*)?([eE][+-]?[0-9]+)?) {
-   currPos += yyleng; 
-   yylval.dval = atof(yytext); 
-   numNumbers++; 
-   return NUMBER;
-}
-
 [ \t]+           {/* ignore spaces */ currPos += yyleng;}
 
 "##".*           {currLine++; currPos = 1;}
@@ -116,5 +118,7 @@ ALPHANUMBER [0-9a-zA-Z]
 "\n"             {currLine++; currPos = 1;}
 
 .                {printf("Error at line %d, column %d: unrecognized symbol \"%s\"\n", currLine, currPos, yytext); exit(0);}
+
+<<EOF>>	{return yy::parser::make_END(loc);}
 
 %%
