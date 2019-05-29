@@ -1,39 +1,61 @@
 /* bison file based off of calc.y */
 %{
-      #include <stdio.h>
-      #include <stdlib.h>
-      #include <string>
-      #include <list>
-      #include <functional>
-      #include <sstream>
-      #include <fstream>
-      #include <map>
-      #include <regex>
-      #include <set>
-
-      using namespace std;
-      void yyerror(const char *msg);
-      extern int currLine;
-      extern int currPos;
-      FILE * yyin;
-      void yyerror(const char* s);
-      yy::parser::symbol_type yylex();
-
-      ofstream file;
-      vector<string> variables;
-      vector<string> expressions;
-      int temps = 0, labels = 0, ret = 0;
-      bool param = false;
-      bool local = false;
 %}
 
-%union{
-      double dval;
-      int ival;
-      char* cval;
- }
+%skeleton "lalr1.cc"
+%require "3.0.2"
+%defines
+%define api.token.constructor
+%define api.value.type variant
+%define parse.error verbose
+%locations
 
-%error-verbose
+%code requires
+
+{
+	/* you may need these deader files 
+	 * add more header file if you need more
+	 */
+    #include <list>
+    #include <string>
+    #include <functional>
+	/* define the sturctures using as types for non-terminals */
+
+	/* end the structures for non-terminal types */
+}
+
+%code
+
+{
+    #include "parser.tab.h"
+
+	/* you may need these deader files 
+	 * add more header file if you need more
+	 */
+    #include <sstream>
+    #include <map>
+    #include <regex>
+    #include <set>
+    
+    using namespace std;
+    
+    yy::parser::symbol_type yylex();
+    
+    ofstream file;
+	vector<string> variables;
+	vector<string> expressions;
+	int temps = 0, labels = 0, ret = 0;
+	bool param = false;
+	bool local = false;
+
+	/* define your symbol table, global variables,
+	 * list of keywords or any function you may need here */
+	
+	/* end of your code */
+}
+
+%token END 0 "end of file";
+
 %start prog_start //functions //input
 
 %token SUB ADD MULT DIV MOD //END
@@ -57,7 +79,7 @@
 
 prog_start:
                   functions
-                  {file.close();}
+                  {printf("prog_start -> functions\n");}
                   ;
 
 functions:
@@ -238,22 +260,11 @@ ident:
             ;
 %%
 
-             
-void yyerror(const char* s) {
-  extern int currLine;
-  extern char* yytext;
-
-  printf("ERROR: %s at symbol \"%s\" on line %d\n", s, yytext, currLine);
-  exit(1);
+int main(int argc, char *argv[]) {
+	yy::parser p;
+	return p.parse();
 }
 
-int main(int argc, char **argv) {
-   if (argc > 1) {
-      yyin = fopen(argv[1], "r");
-      if (yyin == NULL){
-         printf("syntax: %s filename\n", argv[0]);
-      }//end if
-   }//end if
-   yyparse(); // Calls yylex() for tokens.
-   return 0;
+void yy::parser::error(const yy::location& l, const std::string& m) {
+	std::cerr << l << ": " << m << std::endl;
 }
