@@ -1,12 +1,30 @@
-/* based off of calc.y */
+/* bison file based off of calc.y */
 %{
       #include <stdio.h>
       #include <stdlib.h>
+      #include <string>
+      #include <list>
+      #include <functional>
+      #include <sstream>
+      #include <fstream>
+      #include <map>
+      #include <regex>
+      #include <set>
+
+      using namespace std;
       void yyerror(const char *msg);
       extern int currLine;
       extern int currPos;
       FILE * yyin;
       void yyerror(const char* s);
+      yy::parser::symbol_type yylex();
+
+      ofstream file;
+      vector<string> variables;
+      vector<string> expressions;
+      int temps = 0, labels = 0, ret = 0;
+      bool param = false;
+      bool local = false;
 %}
 
 %union{
@@ -33,16 +51,13 @@
 %left AND OR
 %right NOT
 
-%type <statement_IR> statement statements else_statement
-%type <expression_IR> declaration declarations bool_expr relation_and_expr relation_expr relation_exp comp expression expressions multiplicative_expr var vars term identifiers ident
-
 %% 
 
 //grammar goes here
 
 prog_start:
                   functions
-                  {printf("prog_start -> functions\n");}
+                  {file.close();}
                   ;
 
 functions:
