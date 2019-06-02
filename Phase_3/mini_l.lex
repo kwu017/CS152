@@ -38,11 +38,11 @@ ALPHANUMBER [0-9a-zA-Z]
     loc.step(); 
 %}
 
-"-"             {currPos += yyleng; return yy::parser::make_SUB(loc);} //return SUB; currPos++;
-"+"             {currPos += yyleng; return yy::parser::make_ADD(loc);} //return ADD; currPos++;
-"*"             {currPos += yyleng; return yy::parser::make_MULT(loc);} //return MULT; currPos++;
-"/"             {currPos += yyleng; return yy::parser::make_DIV(loc);} //return DIV; currPos++;
-"%"             {currPos += yyleng; return yy::parser::make_MOD(loc);} //return MOD; currPos++;
+"-"             {currPos += yyleng; return yy::parser::make_SUB(loc);} 
+"+"             {currPos += yyleng; return yy::parser::make_ADD(loc);} 
+"*"             {currPos += yyleng; return yy::parser::make_MULT(loc);} 
+"/"             {currPos += yyleng; return yy::parser::make_DIV(loc);} 
+"%"             {currPos += yyleng; return yy::parser::make_MOD(loc);} 
 
 "("             {currPos += yyleng; return yy::parser::make_L_PAREN(loc);}
 ")"             {currPos += yyleng; return yy::parser::make_R_PAREN(loc);}
