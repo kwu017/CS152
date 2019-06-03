@@ -44,10 +44,10 @@
     
     ofstream file;
 	vector<string> variables;
-	vector<string> expressions;
-	int temps = 0, labels = 0, ret = 0;
-	bool param = false;
-	bool local = false;
+	//vector<string> exprs;
+	int temps = 0, labels = 0, returns = 0;
+	bool isparam = false;
+	//bool islocal = false;
 
 	/* define your symbol table, global variables,
 	 * list of keywords or any function you may need here */
@@ -66,8 +66,7 @@
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY
 %token OF IF THEN ENDIF ELSE WHILE DO FOREACH IN BEGINLOOP ENDLOOP CONTINUE READ WRITE AND OR NOT TRUE FALSE RETURN
 %token <std::string> NUMBER IDENT
-%type <std::string> function declarations statements declaration identifiers identifiers1 statement else_statement var vars expression expression1 expressions multiplicative_expr bool_expr relation_expr relation_exp relation_and_expr comp term begin_param end_param begin_local end_local
-
+%type <std::string> function begin_param end_param /*begin_local end_local*/ declarations declaration statements statement else_statement bool_expr relation_and_expr relation_expr relation_exp comp expression expression1 expressions multiplicative_expr var vars term identifiers identifiers1
 %left SUB ADD 
 %left MULT DIV MOD
 %left EQ NEQ LT GT LTE GTE ASSIGN
@@ -89,29 +88,29 @@ functions:
 			;
 
 function:		
-				FUNCTION IDENT SEMICOLON begin_param declarations end_param begin_local declarations end_local BEGIN_BODY statement SEMICOLON statements END_BODY
+				FUNCTION IDENT SEMICOLON begin_param declarations end_param BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statement SEMICOLON statements END_BODY
 			{$$ = "func " + $2 + '\n' + $5 + $8 + $11 + $13 + "\nendfunc\n";}
 			;
 			
 begin_param:		
 				BEGIN_PARAMS
-			{param = true;}
+			{isparam = true;}
 			;
 			
 end_param:	
 				END_PARAMS
-			{param = false;}
+			{isparam = false;}
 			;
 			
-begin_local:	
-				BEGIN_LOCALS
-			{local = true;}
-			;
+// begin_local:	
+// 				BEGIN_LOCALS
+// 			{islocal = true;}
+// 			;
 			
-end_local:		
-				END_LOCALS
-			{local = false;}
-			;
+// end_local:		
+// 				END_LOCALS
+// 			{islocal = false;}
+// 			;
 			
 declaration:		
 				IDENT identifiers COLON identifiers1 INTEGER
@@ -129,7 +128,7 @@ declaration:
 					}
 					
 					$$ += '\n';
-					if($4.empty() && param) {
+					if($4.empty() && isparam) {
 						$$ += "= " + variables.front() + ", $0\n";
 					}
 					
@@ -185,9 +184,9 @@ statement:
 				| CONTINUE
 				| RETURN expression
 			{
-				if (ret == 0) {
+				if (returns == 0) {
 				$$ = "\n. __temp__" + to_string(temps + 1) + "\n= __temp__" + to_string(temps + 1) + ", " + $2 + "ret __temp__" + to_string(temps + 1) + "\n: __label__" + to_string(labels);
-				ret++;
+				returns++;
 				temps++;
 				}
 				
