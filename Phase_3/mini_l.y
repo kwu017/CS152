@@ -66,7 +66,7 @@
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY
 %token OF IF THEN ENDIF ELSE WHILE DO FOREACH IN BEGINLOOP ENDLOOP CONTINUE READ WRITE AND OR NOT TRUE FALSE RETURN
 %token <std::string> NUMBER IDENT
-%type <std::string> function declarations statements declaration declaration1 declaration2 statement statement1 statement2 statement3 var expression expressions multiplicative_expr bool_expr relation_expr relation_exp relation_and_expr comp term /*term1 term2 term3*/ begin_param end_param begin_local end_local
+%type <std::string> function declarations statements declaration identifiers identifiers1 statement else_statement var vars expression expression1 expressions multiplicative_expr bool_expr relation_expr relation_exp relation_and_expr comp term begin_param end_param begin_local end_local
 
 %left SUB ADD 
 %left MULT DIV MOD
@@ -113,20 +113,8 @@ end_local:
 			{local = false;}
 			;
 			
-declarations:		
-			{$$ = "";}
-				| declaration SEMICOLON declarations
-			{$$ = $1 + $3;}
-			;
-
-statements:		
-			{$$ = "";}
-				| statement SEMICOLON statements
-			{$$ = $1 + $3;}
-			;
-
 declaration:		
-				IDENT declaration1 COLON declaration2 INTEGER
+				IDENT identifiers COLON identifiers1 INTEGER
 			{
 				variables.push_back($1);
 				while(!variables.empty()) {
@@ -149,87 +137,75 @@ declaration:
 				}
 			}
 			;
-
-declaration1:		
-				| COMMA IDENT
-			{variables.push_back($2);}
-			;
-
-declaration2:		
+			
+declarations:		
 			{$$ = "";}
-				| ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF
-			{$$ = $3;}
+				| declaration SEMICOLON declarations
+			{$$ = $1 + $3;}
 			;
 
+statements:		
+			{$$ = "";}
+				| statement SEMICOLON statements
+			{$$ = $1 + $3;}
+			;
+			
 statement:		
-			{$$ = "";}
-				|var ASSIGN expression
+				var ASSIGN expression
 			{
 				if(!$1.empty()) {
 					$$ = $1;
 				}
+				
 				$$ += '=';
-				//if R-ARRAY PRINT "[]"
 				$$ += ' ';
 				$$ += ", ";
-				if(!$1.empty())
-				{
-					//PRINT index + ", " see if this is actually useful
-				}
+				
 				if(!variables.empty()) {
 					$$ += variables.front();
 					variables.erase(variables.begin());
 				}
 				$$ = $3;
 			}
-				| IF bool_expr THEN statement SEMICOLON statement2 ENDIF
-			{$$ = $2 + "?:= __label__" + to_string(labels) + ", __temp__" + to_string(temps-1) + "\n:= __label__" + to_string(labels+1) + "\n: __label__" + to_string(labels) + $4 + $6;
-			++temps; ++labels;}
-				|WHILE bool_expr BEGINLOOP statement SEMICOLON statement3 ENDLOOP
+				| IF bool_expr THEN statement SEMICOLON else_statement ENDIF
+			{$$ = $2 + "?:= __label__" + to_string(labels) + ", __temp__" + to_string(temps - 1) + "\n:= __label__" + to_string(labels + 1) + "\n: __label__" + to_string(labels) + $4 + $6;
+			temps++; 
+			labels++;}
+				| WHILE bool_expr BEGINLOOP statement SEMICOLON statements ENDLOOP
 			{$$ = "__temp__" + to_string(temps) + ' ' + $2 + $4 + "\n?:=__label__" + to_string(labels) + $6;
-			labels++; ++temps;}
-				| DO BEGINLOOP statement SEMICOLON statement3 ENDLOOP WHILE bool_expr
+			labels++; 
+			temps++;}
+				| DO BEGINLOOP statement SEMICOLON statements ENDLOOP WHILE bool_expr
 			{$$ = $3 + $5 + $8;}
-				| READ var statement1
-			{$$ = ".< " + $2 + $3;}
-				| WRITE var statement1
-			{$$ = "\n= " + $2 + ", __temp__" + to_string(temps) + "\n.> " + $2 + $3;
-			++temps;}
+				| READ vars
+			{$$ = ".< " + $2;}
+				| WRITE vars
+			{$$ = "\n= " + $2 + ", __temp__" + to_string(temps) + "\n.> " + $2;
+			temps++;}
 				| CONTINUE
 				| RETURN expression
 			{
 				if (ret == 0) {
-				$$ = "\n. __temp__" + to_string(temps+1) + "\n= __temp__" + to_string(temps+1) + ", " + $2 + "ret __temp__" + to_string(temps+1) + "\n: __label__" + to_string(labels);
-				++ret;
-				++temps;
+				$$ = "\n. __temp__" + to_string(temps + 1) + "\n= __temp__" + to_string(temps + 1) + ", " + $2 + "ret __temp__" + to_string(temps + 1) + "\n: __label__" + to_string(labels);
+				ret++;
+				temps++;
 				}
+				
 				else {
-					$$ = $2 + "\nret __temp__" + to_string(temps-1);
+					$$ = $2 + "\nret __temp__" + to_string(temps - 1);
 				}
-				++temps;
+				temps++;
 			}
 			;
 			
-statement1:		
-			{$$ = "";}
-				| COMMA var statement1
-			{$$ = $2 + $3;}
-			;
-
-statement2:		
-			{$$ = "";}
-				| statement SEMICOLON statement2
-			{$$ = $1 + $3;}
-				| ELSE statement SEMICOLON statement3
-			{$$ = $2 + $4;}
-			;
-
-statement3:		
-			{$$ = "";}
-				| statement SEMICOLON statement3
-			{$$ = $1 + $3;}
-			;
-
+else_statement:   
+            {$$ = "";}
+            	| statement SEMICOLON else_statement
+            {$$ = $1 + $3;}
+                | ELSE statement SEMICOLON statements
+            {$$ = $2;}
+            ;
+            
 bool_expr:		
 				relation_and_expr
 			{$$ = $1;}
@@ -281,20 +257,28 @@ comp:			GT
 			;
 
 expression:		
-				multiplicative_expr expressions
+				multiplicative_expr expression1
 			{$$ = $1;
 			$$ += "\n" + $2;}
+			;
+			
+expression1:
+			{$$ = "";}
+				| ADD multiplicative_expr expression1
+			{$$ = $2 + ". __temp__" + to_string(temps) + "\n+ __temp__" + to_string(temps) + ", __temp__" + to_string(temps - 5) + ", __temp__" + to_string(temps - 1)+ $3;
+			temps++;}
+				| SUB multiplicative_expr expression1
+			{$$ = ". __temp__" + to_string(temps + 1) + "\n= __temp__" + to_string(temps + 1) + ", " + $2 + "\n. __temp__" + to_string(temps + 2) + "\n- __temp__" + to_string(temps + 2) + ", __temp__" + to_string(temps) + ", __temp__" + to_string(temps + 1)+ $3;
+			temps++;}
 			;
 
 expressions:		
 			{$$ = "";}
-				| ADD multiplicative_expr expressions
-			{$$ = $2 + ". __temp__" + to_string(temps) + "\n+ __temp__" + to_string(temps) + ", __temp__" + to_string(temps-5) + ", __temp__" + to_string(temps-1)+ $3;
-			++temps;}
-				| SUB multiplicative_expr expressions
-			{$$ = ". __temp__" + to_string(temps+1) + "\n= __temp__" + to_string(temps+1) + ", " + $2 + "\n. __temp__" + to_string(temps+2) + "\n- __temp__" + to_string(temps+2) + ", __temp__" + to_string(temps) + ", __temp__" + to_string(temps+1)+ $3;
-			++temps;}
-			;
+                 | expression COMMA expressions
+            {$$ = $1 + $3;}
+                 | expression
+            {$$ = $1;}
+            ;
 
 multiplicative_expr:	
 				term
@@ -306,6 +290,20 @@ multiplicative_expr:
 				| term MOD multiplicative_expr
 			{$$ = " % " + $1;}
 			;
+			
+var:			
+				IDENT
+			{$$ = $1;}
+				| IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+			{$$ = $3;}
+			;
+			
+vars:
+				var
+            {$$ = $1;}
+                 | var COMMA vars
+            {$$ = $1 + $3;}
+            ;
 
 term:			var
 			{$$ = $1;}
@@ -319,17 +317,23 @@ term:			var
 			{$$ = $2;}
 				| SUB L_PAREN expression R_PAREN
 			{$$ = "-" + $3;}
-				| IDENT L_PAREN expression R_PAREN
+				| IDENT L_PAREN expressions R_PAREN
 			{$$ = "\n. __temp__" + to_string(temps - 1) + "\n= __temp__" + to_string(temps - 1) + ", " + $3 + "\nparam __temp__" + to_string(temps + 1) + "\n. __temp__" + to_string(temps + 2) + "\ncall " + $1 + ", __temp__" + to_string(temps + 2) + "\n";
 			temps = temps + 3; labels++;}
 			;
+			
+identifiers:	
+			{$$ = "";}
+				| COMMA IDENT
+			{variables.push_back($2);}
+			;
 
-var:			
-				IDENT
-			{$$ = $1;}
-				| IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+identifiers1:		
+			{$$ = "";}
+				| ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF
 			{$$ = $3;}
 			;
+
 %%
 
 int main(int argc, char *argv[]) {
