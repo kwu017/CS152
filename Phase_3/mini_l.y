@@ -66,7 +66,7 @@
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY
 %token OF IF THEN ENDIF ELSE WHILE DO FOREACH IN BEGINLOOP ENDLOOP CONTINUE READ WRITE AND OR NOT TRUE FALSE RETURN
 %token <std::string> NUMBER IDENT
-%type <std::string> function begin_param end_param /*begin_local end_local*/ declarations declaration statements statement else_statement bool_expr relation_and_expr relation_expr relation_exp comp expression expression1 expressions multiplicative_expr var vars term identifiers identifiers1
+%type <std::string> function begin_param end_param declarations declaration statements statement else_statement bool_expr relation_and_expr relation_expr relation_exp comp expression expression1 expressions multiplicative_expr var vars term identifiers identifiers1
 %left SUB ADD 
 %left MULT DIV MOD
 %left EQ NEQ LT GT LTE GTE ASSIGN
@@ -101,16 +101,6 @@ end_param:
 				END_PARAMS
 			{isparam = false;}
 			;
-			
-// begin_local:	
-// 				BEGIN_LOCALS
-// 			{islocal = true;}
-// 			;
-			
-// end_local:		
-// 				END_LOCALS
-// 			{islocal = false;}
-// 			;
 			
 declaration:		
 				IDENT identifiers COLON identifiers1 INTEGER
