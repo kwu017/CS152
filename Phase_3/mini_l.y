@@ -115,11 +115,10 @@ declaration:
 						$$ += ", " + $4;
 					}
 					
-					$$ += '\n';
+					$$ += '\n'; 
 					if($4.empty() && isparam) {
 						$$ += "= " + variables.front() + ", $0\n";
 					}
-					
 					variables.erase(variables.begin());
 				}
 			}
@@ -128,11 +127,12 @@ declaration:
 declarations:		
 			{$$ = "";}
 				| declaration SEMICOLON declarations
-			{$$ = $1 + $3;}
+			{$$ = $1 + $3;
+			}
 			;
 
 statements:		
-			{$$ = "";}
+			{$$ = "";} //ololo
 				| statement SEMICOLON statements
 			{$$ = $1 + $3;}
 			;
@@ -153,6 +153,7 @@ statement:
 					variables.erase(variables.begin());
 				}
 				$$ = $3;
+				//$$ += '\n';
 			}
 				| IF bool_expr THEN statement SEMICOLON else_statement ENDIF
 			{$$ = $2 + "?:= __label__" + to_string(labels) + ", __temp__" + to_string(temps - 1) + "\n:= __label__" + to_string(labels + 1) + "\n: __label__" + to_string(labels) + $4 + $6;
@@ -167,21 +168,24 @@ statement:
 				| READ vars
 			{$$ = ".< " + $2;}
 				| WRITE vars
-			{$$ = "\n= " + $2 + ", __temp__" + to_string(temps) + "\n.> " + $2;
+			{$$ = "= " + $2 + ", __temp__" + to_string(temps - 1) + "\n.> " + $2; //there was a newline right before the = sign //added a -1 after temps fixed adding issue
+			//$$.erase(remove($$.begin(), $$.end(), '\n'), $$.end());
 			temps++;}
 				| CONTINUE
+			{$$ = "";}
 				| RETURN expression
 			{
 				if (returns == 0) {
-				$$ = "\n. __temp__" + to_string(temps + 1) + "\n= __temp__" + to_string(temps + 1) + ", " + $2 + "ret __temp__" + to_string(temps + 1) + "\n: __label__" + to_string(labels);
-				returns++;
-				temps++;
+					$$ = "\n. __temp__" + to_string(temps + 1) + "\n= __temp__" + to_string(temps + 1) + ", " + $2 + "ret __temp__" + to_string(temps + 1) + "\n: __label__" + to_string(labels + 1);
+					returns++;
+					temps++;
 				}
 				
 				else {
-					$$ = $2 + "\nret __temp__" + to_string(temps - 1);
+					$$ = $2 + "ret __temp__" + to_string(temps - 1); //used to be a \n in front of ret
+					temps++;
 				}
-				temps++;
+				//temps++;
 			}
 			;
 			
@@ -216,7 +220,7 @@ relation_expr:
 
 relation_exp:		
 				expression comp expression
-			{$$ = ". __temp__" + to_string(temps - 1) + "\n" + "= __temp__" + to_string(temps - 1) + ", " + $1 /*+ "\n"*/ + ". __temp__" + to_string(temps) + "\n" + "= __temp__" + to_string(temps) + ", " + $3 + "\n" + $2;
+			{$$ = ". __temp__" + to_string(temps - 1) + "\n" + "= __temp__" + to_string(temps - 1) + ", " + $1 /*+ "\n"*/ + ". __temp__" + to_string(temps) + "\n" + "= __temp__" + to_string(temps) + ", " + $3 /*+ "\n"*/ + $2;
 			temps++;}
 				| TRUE
 			{$$ = "__temp__" + to_string(temps);
@@ -229,15 +233,20 @@ relation_exp:
 			;
 
 comp:			GT
-			{$$ = "> ";}
+			{$$ = ". __temp__" + to_string(temps + 2) + "\n> __temp__" + to_string(temps + 2) + ", " + "__temp__" + to_string(temps) + ", " + "__temp__" + to_string(temps + 1) + "\n";
+			temps++;}
 				| GTE
-			{$$ = ">= ";}
+			{$$ = ". __temp__" + to_string(temps + 2) + "\n>= __temp__" + to_string(temps + 2) + ", " + "__temp__" + to_string(temps) + ", " + "__temp__" + to_string(temps + 1) + "\n";
+			temps++;}
 				| LT
-			{$$ = "< ";}
+			{$$ = ". __temp__" + to_string(temps + 2) + "\n< __temp__" + to_string(temps + 2) + ", " + "__temp__" + to_string(temps) + ", " + "__temp__" + to_string(temps + 1) + "\n";
+			temps++;}
 				| EQ
-			{$$ = "== ";}
+			{$$ = ". __temp__" + to_string(temps + 2) + "\n== __temp__" + to_string(temps + 2) + ", " + "__temp__" + to_string(temps) + ", " + "__temp__" + to_string(temps + 1) + "\n";
+			temps++;}
 				| NEQ
-			{$$ = "!= ";}
+			{$$ = ". __temp__" + to_string(temps + 2) + "\n!= __temp__" + to_string(temps + 2) + ", " + "__temp__" + to_string(temps) + ", " + "__temp__" + to_string(temps + 1) + "\n";
+			temps++;}
 				| LTE
 			{$$ = ". __temp__" + to_string(temps + 2) + "\n<= __temp__" + to_string(temps + 2) + ", " + "__temp__" + to_string(temps) + ", " + "__temp__" + to_string(temps + 1) + "\n";
 			temps++;}
@@ -246,16 +255,17 @@ comp:			GT
 expression:		
 				multiplicative_expr expression1
 			{$$ = $1;
-			$$ += "\n" + $2;}
+			$$ += "\n" + $2;
+			}
 			;
 			
 expression1:
-			{$$ = "";}
+			{$$ = "";} //leave hi as a marker
 				| ADD multiplicative_expr expression1
-			{$$ = $2 + ". __temp__" + to_string(temps) + "\n+ __temp__" + to_string(temps) + ", __temp__" + to_string(temps - 5) + ", __temp__" + to_string(temps - 1)+ $3;
+			{$$ = $2 + ". __temp__" + to_string(temps) + "\n+ __temp__" + to_string(temps) + ", __temp__" + to_string(temps - 5) + ", __temp__" + to_string(temps - 1) + $3 + "\n"; //added a \n at the end
 			temps++;}
 				| SUB multiplicative_expr expression1
-			{$$ = ". __temp__" + to_string(temps + 1) + "\n= __temp__" + to_string(temps + 1) + ", " + $2 + "\n. __temp__" + to_string(temps + 2) + "\n- __temp__" + to_string(temps + 2) + ", __temp__" + to_string(temps) + ", __temp__" + to_string(temps + 1)+ $3;
+			{$$ = ". __temp__" + to_string(temps + 1) + "\n= __temp__" + to_string(temps + 1) + ", " + $2 + "\n. __temp__" + to_string(temps + 2) + "\n- __temp__" + to_string(temps + 2) + ", __temp__" + to_string(temps) + ", __temp__" + to_string(temps + 1) + $3 + "\n"; //added a \n at the end
 			temps++;}
 			;
 
@@ -280,9 +290,9 @@ multiplicative_expr:
 			
 var:			
 				IDENT
-			{$$ = $1;}
+			{$$ = $1;} //hooha
 				| IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-			{$$ = $3;}
+			{$$ = $3;} //yipyip
 			;
 			
 vars:
@@ -305,8 +315,8 @@ term:			var
 				| SUB L_PAREN expression R_PAREN
 			{$$ = "-" + $3;}
 				| IDENT L_PAREN expressions R_PAREN
-			{$$ = "\n. __temp__" + to_string(temps - 1) + "\n= __temp__" + to_string(temps - 1) + ", " + $3 + "\nparam __temp__" + to_string(temps + 1) + "\n. __temp__" + to_string(temps + 2) + "\ncall " + $1 + ", __temp__" + to_string(temps + 2) + "\n"; //+\n
-			temps = temps + 3; 
+			{$$ = "\n. __temp__" + to_string(temps - 1) + "\n= __temp__" + to_string(temps - 1) + ", " + $3 + "param __temp__" + to_string(temps + 1) + "\n. __temp__" + to_string(temps + 2) + "\ncall " + $1 + ", __temp__" + to_string(temps + 2) + "\n";
+			temps = temps + 3;
 			labels++;}
 			;
 			
