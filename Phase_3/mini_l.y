@@ -254,8 +254,8 @@ comp:			GT
 
 expression:		
 				multiplicative_expr expression1
-			{$$ = $1;
-			$$ += "\n" + $2;
+			{$$ = $1 + "\n";
+			$$ += $2;
 			}
 			;
 			
@@ -272,14 +272,14 @@ expression1:
 expressions:		
 			{$$ = "";}
                  | expression COMMA expressions
-            {$$ = $1 + $3;}
+            {$$ = $1 + $3;} 
                  | expression
             {$$ = $1;}
             ;
 
 multiplicative_expr:	
 				term
-			{$$ = $1;}
+			{$$ = $1;} //extra space
 				| term MULT multiplicative_expr
 			{$$ = $1 + " * " + $3;}
 				| term DIV multiplicative_expr
