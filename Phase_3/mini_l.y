@@ -44,10 +44,8 @@
     
     ofstream file;
 	vector<string> variables;
-	//vector<string> exprs;
 	int temps = 0, labels = 0, returns = 0;
 	bool isparam = false;
-	//bool islocal = false;
 
 	/* define your symbol table, global variables,
 	 * list of keywords or any function you may need here */
@@ -218,7 +216,7 @@ relation_expr:
 
 relation_exp:		
 				expression comp expression
-			{$$ = ". __temp__" + to_string(temps - 1) + "\n" + "= __temp__" + to_string(temps - 1) + ", " + $1 + "\n" + ". __temp__" + to_string(temps) + "\n" + "= __temp__" + to_string(temps) + ", " + $3 + "\n" + $2;
+			{$$ = ". __temp__" + to_string(temps - 1) + "\n" + "= __temp__" + to_string(temps - 1) + ", " + $1 /*+ "\n"*/ + ". __temp__" + to_string(temps) + "\n" + "= __temp__" + to_string(temps) + ", " + $3 + "\n" + $2;
 			temps++;}
 				| TRUE
 			{$$ = "__temp__" + to_string(temps);
@@ -307,8 +305,9 @@ term:			var
 				| SUB L_PAREN expression R_PAREN
 			{$$ = "-" + $3;}
 				| IDENT L_PAREN expressions R_PAREN
-			{$$ = "\n. __temp__" + to_string(temps - 1) + "\n= __temp__" + to_string(temps - 1) + ", " + $3 + "\nparam __temp__" + to_string(temps + 1) + "\n. __temp__" + to_string(temps + 2) + "\ncall " + $1 + ", __temp__" + to_string(temps + 2) + "\n";
-			temps = temps + 3; labels++;}
+			{$$ = "\n. __temp__" + to_string(temps - 1) + "\n= __temp__" + to_string(temps - 1) + ", " + $3 + "\nparam __temp__" + to_string(temps + 1) + "\n. __temp__" + to_string(temps + 2) + "\ncall " + $1 + ", __temp__" + to_string(temps + 2) + "\n"; //+\n
+			temps = temps + 3; 
+			labels++;}
 			;
 			
 identifiers:	
@@ -326,7 +325,7 @@ identifiers1:
 %%
 
 int main(int argc, char *argv[]) {
-    file.open("mini_l.mil");
+    file.open("mil_code.mil");
 	yy::parser p;
 	return p.parse();
 }
