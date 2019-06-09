@@ -38,6 +38,7 @@
     #include <regex>
     #include <set>
     #include <vector>
+    #include <stack>
     
     using namespace std;
     
