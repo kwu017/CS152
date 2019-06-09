@@ -93,7 +93,7 @@ ALPHANUMBER [0-9a-zA-Z]
 
 ({DIGIT}+) {
     currPos += yyleng;
-    return yy::parser::make_NUMBER(yytext, loc);
+    return yy::parser::make_NUMBERS(yytext, loc);
 }
 
 {LETTER}({CHAR}*{ALPHANUMBER}+)? {
