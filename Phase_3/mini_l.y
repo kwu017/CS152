@@ -106,8 +106,10 @@ functions:
 			
 function_name:
 				FUNCTION IDENT
-			{func_table.push_back($2); 
-             file << "func " << $2 << endl;}
+			{
+                func_table.push_back($2);
+                file << "func " << $2 << endl;
+            }
              ;
 
 function: 		
@@ -196,11 +198,15 @@ statement:
             	statement_vector.push_back("[]= " + $1 + ", " + array_expression + ", " + array_result_expression);
         	}
 		    	| if_statement statements ENDIF
-        	{statement_vector.push_back(": " + iflabels.back().at(1));
-            iflabels.pop_back();}
+        	{
+                statement_vector.push_back(": " + iflabels.back().at(1));
+                iflabels.pop_back();
+            }
         		| elseif_statment statements ENDIF 
-			{statement_vector.push_back(": " + iflabels.back().at(2));
-        	iflabels.pop_back();}
+			{
+                statement_vector.push_back(": " + iflabels.back().at(2));
+                iflabels.pop_back();
+            }
 		    	| while_statement statements ENDLOOP 
 			{
             	statement_vector.push_back(":= " + looplabels.back().at(0));
@@ -266,8 +272,10 @@ statement:
             	}
         	}
         		| RETURN expression
-        	{statement_vector.push_back("ret " + operands.back());
-            operands.pop_back();}
+        	{
+                statement_vector.push_back("ret " + operands.back());
+                operands.pop_back();
+            }
 			;
         
 if_statement:		
@@ -300,8 +308,10 @@ if_statement:
 
 elseif_statment:    
 				if_statement statements ELSE
-            {statement_vector.push_back(":= " + iflabels.back().at(2));
-             statement_vector.push_back(": " + iflabels.back().at(1));}
+            {
+                statement_vector.push_back(":= " + iflabels.back().at(2));
+                statement_vector.push_back(": " + iflabels.back().at(1));
+            }
             ;
 
 while_print:  
@@ -709,11 +719,15 @@ ident_term:
 
 expression_term:        
 				expression
-            {param_queue.push(operands.back());
-             operands.pop_back();}
+            {
+                param_queue.push(operands.back());
+                operands.pop_back();
+            }
                 | expression COMMA expression_term
-            {param_queue.push(operands.back());
-             operands.pop_back();}
+            {
+                param_queue.push(operands.back());
+                operands.pop_back();
+            }
             ;
                 
 identifiers:		
@@ -762,8 +776,11 @@ ident:
 
 int main(int argc, char *argv[]) {
     file.open("mil_code.mil");
-	yy::parser p;
-	return p.parse();
+    if(file.is_open()){
+        yy::parser p;
+        return p.parse();
+    }
+    return 0;
 }
 
 void yy::parser::error(const yy::location& l, const std::string& m) {
