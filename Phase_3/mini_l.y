@@ -48,24 +48,26 @@
     int yyerror (char* s);          
 	bool in_symbol_table(string);      
 	bool in_arr_table(string);      
-	bool in_func_table(string);    
+	bool in_function_table(string);    
 	
 	int params = 0, temps = 0, labels = -1;
+	string temp_string;
 	bool isparam = false; 
 	
 	vector<string> param_table;
-	vector<string> func_table; //Stores the names of functions for the function lookup table
+	vector<string> function_table; 
 	vector<string> symbol_table;  
-	vector<string> sym_type;   //Stores the data type of the variables denoted by the symbols 
+	vector<string> sym_type;   
 	vector<string> operands;         
-	vector<string> statement_vector; //Stores the statements in machine language
-	string temp_string;         //temporary variable
+	vector<string> statement_vector; 
+	
 	vector<vector<string> > iflabels; 
 	vector<vector<string> > looplabels;  
+	
 	stack<string> param_queue; 
 	stack<string> read_queue;  
                             
-    ofstream file;
+    ofstream file; //use this to write to mil_code.mil
              
 	/* define your symbol table, global variables,
 	 * list of keywords or any function you may need here */
@@ -107,7 +109,7 @@ functions:
 function_name:
 				FUNCTION IDENT
 			{
-                func_table.push_back($2);
+                function_table.push_back($2);
                 file << "func " << $2 << endl;
             }
              ;
@@ -115,13 +117,13 @@ function_name:
 function: 		
 				function_name SEMICOLON begin_param declarations end_param BEGIN_LOCALS declarations END_LOCALS BEGIN_BODY statements END_BODY
 			{
-				for (unsigned j = 0; j < symbol_table.size(); j++) {
-					if (sym_type.at(j) == "INTEGER") {
-						file << ". " << symbol_table.at(j) << endl;
+				for (unsigned i = 0; i < symbol_table.size(); i++) {
+					if (sym_type.at(i) == "INT") {
+						file << ". " << symbol_table.at(i) << endl;
 					}
 				
 					else {
-						file << ".[] " << symbol_table.at(j) << ", " << sym_type.at(j) << endl;
+						file << ".[] " << symbol_table.at(i) << ", " << sym_type.at(i) << endl;
 					}	
 				}
 				
@@ -156,7 +158,7 @@ end_param:
 			
 declaration:		
 				identifiers COLON INTEGER
-			{sym_type.push_back("INTEGER");}
+			{sym_type.push_back("INT");}
 			    | ARRAY L_SQUARE_BRACKET NUMBERS R_SQUARE_BRACKET OF INTEGER
 			{
 				stringstream ss;
@@ -191,11 +193,11 @@ statement:
             	if (!in_arr_table(var)) {
                 	exit(0);
             	}	
-            	string array_result_expression = operands.back();
+            	string array_expression_result = operands.back();
             	operands.pop_back();
             	string array_expression = operands.back();
             	operands.pop_back();
-            	statement_vector.push_back("[]= " + $1 + ", " + array_expression + ", " + array_result_expression);
+            	statement_vector.push_back("[]= " + $1 + ", " + array_expression + ", " + array_expression_result);
         	}
 		    	| if_statement statements ENDIF
         	{
@@ -240,8 +242,8 @@ statement:
                 int stuff = temps;
             	temps++;                       
             	string temp = "__temp__" + to_string(stuff); 
-            	symbol_table.push_back(temp);      //adding temporary variable to symbol table
-            	sym_type.push_back("INTEGER");          //adding datatype for the temp var to symbol table
+            	symbol_table.push_back(temp);      
+            	sym_type.push_back("INT");          
             	statement_vector.push_back(".< " + temp);
             	statement_vector.push_back("[]= " + $2 + ", " + operands.back() + ", " + temp);
             	operands.pop_back();
@@ -281,7 +283,7 @@ statement:
 if_statement:		
 				IF bool_expr THEN
         	{
-            	labels++;     //Generating two discrete labels for this if statement
+            	labels++;     
                 int lab = labels;
             	string label1 = "__label__" + to_string(lab); //if true label
             	
@@ -293,16 +295,16 @@ if_statement:
             	lab = labels;
             	string label3 = "__label__" + to_string(lab); //else label
             	
-            	vector<string> temp_label;        //temp label vector
-            	temp_label.push_back(label1);    //pushing first label onto temp label vectr
-            	temp_label.push_back(label2);    //pushing second label onto temp vector
+            	vector<string> temp_label;        
+            	temp_label.push_back(label1);    
+            	temp_label.push_back(label2);    
             	temp_label.push_back(label3);
-            	iflabels.push_back(temp_label);   //pushing temp vector onto if label
+            	
+            	iflabels.push_back(temp_label);  
             	statement_vector.push_back("?:= " + iflabels.back().at(0) + ", " + operands.back());
-                                        //MC: evaluate if condition and goto first_label
             	operands.pop_back();
-            	statement_vector.push_back(":= " + iflabels.back().at(1));  //MC: goto second_label
-            	statement_vector.push_back(": " + iflabels.back().at(0));      //MC: declaration first_label
+            	statement_vector.push_back(":= " + iflabels.back().at(1));  
+            	statement_vector.push_back(": " + iflabels.back().at(0));  
         	}
         	;
 
@@ -329,12 +331,13 @@ while_print:
             	lab = labels;
             	string label3 = "__label__" + to_string(lab);  //while false label
             	
-            	vector<string> temp_label;        //temp label vector
-            	temp_label.push_back(label1);    //pushing first label onto temp label vectr
-            	temp_label.push_back(label2);    //pushing second label onto temp vector
-            	temp_label.push_back(label3);    //pushing third label onto temp vector
-            	looplabels.push_back(temp_label);   //pushing temp vector onto if label
-            	statement_vector.push_back(": " + looplabels.back().at(0));      //MC: declaration looplabels
+            	vector<string> temp_label;     
+            	temp_label.push_back(label1);  
+            	temp_label.push_back(label2);   
+            	temp_label.push_back(label3); 
+            	
+            	looplabels.push_back(temp_label);   
+            	statement_vector.push_back(": " + looplabels.back().at(0));      
         	}
         	;
         	
@@ -362,6 +365,7 @@ do_print:
             	vector<string> temp_label;
             	temp_label.push_back(label1);
             	temp_label.push_back(label2);
+            	
             	looplabels.push_back(temp_label);
             	statement_vector.push_back(": " + label1);
         	}
@@ -379,7 +383,7 @@ bool_expr:
             	temps++;
             	string temp = "__temp__" + to_string(temps);
             	symbol_table.push_back(temp);    
-            	sym_type.push_back("INTEGER");      
+            	sym_type.push_back("INT");      
             	string operandstuff2 = operands.back();
             	operands.pop_back();
             	string operandstuff1 = operands.back();
@@ -397,7 +401,7 @@ relation_and_expr:
             	temps++;
             	string temp = "__temp__" + to_string(stuff); 
             	symbol_table.push_back(temp);     
-            	sym_type.push_back("INTEGER");      
+            	sym_type.push_back("INT");      
             	string operandstuff2 = operands.back();
             	operands.pop_back();
             	string operandstuff1 = operands.back();
@@ -415,7 +419,7 @@ relation_expr:
             	temps++;
             	string temp = "__temp__" + to_string(stuff); 
             	symbol_table.push_back(temp);     
-            	sym_type.push_back("INTEGER");          
+            	sym_type.push_back("INT");          
             	string operandstuff1 = operands.back();
             	operands.pop_back();                          
             	statement_vector.push_back("! " + temp + ", " + operandstuff1);   
@@ -430,7 +434,7 @@ relation_exp:
             	temps++;
             	string temp = "__temp__" + to_string(stuff); 
             	symbol_table.push_back(temp);      
-            	sym_type.push_back("INTEGER");         
+            	sym_type.push_back("INT");         
             	string operandstuff2 = operands.back();
             	operands.pop_back();
             	string operandstuff1 = operands.back();
@@ -444,7 +448,7 @@ relation_exp:
             	temps++;
             	string temp = "__temp__" + to_string(stuff); 
             	symbol_table.push_back(temp);      
-            	sym_type.push_back("INTEGER");      
+            	sym_type.push_back("INT");      
             	string operandstuff2 = operands.back();
             	operands.pop_back();
             	string operandstuff1 = operands.back();
@@ -459,7 +463,7 @@ relation_exp:
             	temps++;
             	string temp = "__temp__" + to_string(stuff);  
             	symbol_table.push_back(temp);      
-            	sym_type.push_back("INTEGER");       
+            	sym_type.push_back("INT");       
             	string operandstuff2 = operands.back();
             	operands.pop_back();
             	string operandstuff1 = operands.back();
@@ -473,7 +477,7 @@ relation_exp:
             	temps++;
             	string temp = "__temp__" + to_string(stuff); 
             	symbol_table.push_back(temp);      
-            	sym_type.push_back("INTEGER");          
+            	sym_type.push_back("INT");          
             	string operandstuff2 = operands.back();
             	operands.pop_back();
             	string operandstuff1 = operands.back();
@@ -487,7 +491,7 @@ relation_exp:
             	temps++;
             	string temp = "__temp__" + to_string(stuff);
             	symbol_table.push_back(temp);      
-            	sym_type.push_back("INTEGER");        
+            	sym_type.push_back("INT");        
             	string operandstuff2 = operands.back();
             	operands.pop_back();
             	string operandstuff1 = operands.back();
@@ -501,7 +505,7 @@ relation_exp:
             	temps++;
             	string temp = "__temp__" + to_string(stuff);
             	symbol_table.push_back(temp);      
-            	sym_type.push_back("INTEGER");    
+            	sym_type.push_back("INT");    
             	string operandstuff2 = operands.back();
             	operands.pop_back();
             	string operandstuff1 = operands.back();
@@ -515,7 +519,7 @@ relation_exp:
         		temps++;
             	string temp = "__temp__" + to_string(stuff); 
             	symbol_table.push_back(temp);      
-            	sym_type.push_back("INTEGER");          
+            	sym_type.push_back("INT");          
             	statement_vector.push_back("= " + temp + ", 1"); 
             	operands.push_back(temp);
         	}
@@ -525,7 +529,7 @@ relation_exp:
             	temps++;
             	string temp = "__temp__" + to_string(stuff);
             	symbol_table.push_back(temp);      
-            	sym_type.push_back("INTEGER");          
+            	sym_type.push_back("INT");          
             	statement_vector.push_back("= " + temp + ", 0"); 
             	operands.push_back(temp);
         	}
@@ -543,7 +547,7 @@ expressions:
             	temps++;
             	string temp = "__temp__" + to_string(stuff); 
             	symbol_table.push_back(temp);      
-            	sym_type.push_back("INTEGER");          
+            	sym_type.push_back("INT");          
             	string operandstuff2 = operands.back();
             	operands.pop_back();
             	string operandstuff1 = operands.back();
@@ -557,7 +561,7 @@ expressions:
             	temps++;
             	string temp = "__temp__" + to_string(stuff); 
             	symbol_table.push_back(temp);      
-            	sym_type.push_back("INTEGER");         
+            	sym_type.push_back("INT");         
             	string operandstuff2 = operands.back();
             	operands.pop_back();
             	string operandstuff1 = operands.back();
@@ -578,7 +582,7 @@ multiplicative_print:
             	temps++;
             	string temp = "__temp__" + to_string(stuff); 
             	symbol_table.push_back(temp);      
-            	sym_type.push_back("INTEGER");         
+            	sym_type.push_back("INT");         
             	string operandstuff2 = operands.back();
             	operands.pop_back();
             	string operandstuff1 = operands.back();
@@ -592,7 +596,7 @@ multiplicative_print:
             	temps++;
             	string temp = "__temp__" + to_string(stuff); 
             	symbol_table.push_back(temp);      
-            	sym_type.push_back("INTEGER");         
+            	sym_type.push_back("INT");         
             	string operandstuff2 = operands.back();
             	operands.pop_back();
             	string operandstuff1 = operands.back();
@@ -606,7 +610,7 @@ multiplicative_print:
             	temps++;
             	string temp = "__temp__" + to_string(stuff); 
             	symbol_table.push_back(temp);      
-            	sym_type.push_back("INTEGER");         
+            	sym_type.push_back("INT");         
             	string operandstuff2 = operands.back();
             	operands.pop_back();
             	string operandstuff1 = operands.back();
@@ -651,7 +655,7 @@ term:
                 temps++;
                 string temp = "__temp__" + to_string(stuff); 
                 symbol_table.push_back(temp);  
-                sym_type.push_back("INTEGER");     
+                sym_type.push_back("INT");     
                 statement_vector.push_back("- " + temp + ", 0, " + operands.back());    
                 operands.pop_back();  
                 operands.push_back(temp); 
@@ -662,8 +666,8 @@ term:
                 temps++;
                 string temp = "__temp__" + to_string(stuff);  
                 symbol_table.push_back(temp);     
-                sym_type.push_back("INTEGER");     
-                if (!in_func_table($1)) {
+                sym_type.push_back("INT");     
+                if (!in_function_table($1)) {
                     exit(0);
                 }    
                 statement_vector.push_back("call " + $1 + ", " + temp); 
@@ -678,7 +682,7 @@ term_again:
                 temps++;
                 string temp = "__temp__" + to_string(stuff);  
                 symbol_table.push_back(temp);     
-                sym_type.push_back("INTEGER");     
+                sym_type.push_back("INT");     
                 string operandstuff1 = operands.back();       
                 if(operandstuff1.at(0) == '[') {       
                     statement_vector.push_back("=[] " + temp + ", " + operandstuff1.substr(3, operandstuff1.length() - 3));
@@ -696,7 +700,7 @@ term_again:
                 temps++;             
                 string temp = "__temp__" + to_string(stuff); 
                 symbol_table.push_back(temp);     
-                sym_type.push_back("INTEGER");     
+                sym_type.push_back("INT");     
                 stringstream ss;
                 ss << $1;
                 statement_vector.push_back("= " + temp + ", " + ss.str());
@@ -741,7 +745,7 @@ identifiers:
 				| IDENT COMMA identifiers 
 			{
 				symbol_table.push_back($1);
-				sym_type.push_back("INTEGER");
+				sym_type.push_back("INT");
 			}
 			;
 			
@@ -765,7 +769,7 @@ ident:
                 temps++;                       
                 string temp = "__temp__" + to_string(stuff);  
                 symbol_table.push_back(temp);     
-                sym_type.push_back("INTEGER");    
+                sym_type.push_back("INT");    
                 read_queue.push(".< " + temp);
                 read_queue.push("[]= " + $2 + ", " + operands.back() + ", " + temp);
                 operands.pop_back();
@@ -791,7 +795,7 @@ int yyerror(string s) {
   int currLine, currPos;
   char *yytext;	
   
-  cerr << "SYNTAX(PARSER) Error at line " << currLine << ", position " << currPos << " : Unexpected Symbol \"" << yytext << "\" Encountered." << endl;
+  cerr << "Parser/syntax error at line " << currLine << ", position " << currPos << " : unexpected symbol \"" << yytext << "\"" << endl;
   exit(1);
 }
 
@@ -803,17 +807,17 @@ bool in_symbol_table(string var) {
     int currLine, currPos; 
     for (unsigned int i = 0; i < symbol_table.size(); i++) {
         if (symbol_table.at(i) == var) {
-            if (sym_type.at(i) == "INTEGER") {
+            if (sym_type.at(i) == "INT") {
                 return true;
             }
             
             else {
-                file << "SEMANTIC Error at line " << currLine << ", position " << currPos << " : Incompatible Datatype - \"" << var.substr(1, var.length() - 1) << "\" is an ARRAY." << endl; 
+                file << "Semantic error at line " << currLine << ", position " << currPos << " : incorrect datatype \"" << var.substr(1, var.length() - 1) << "\"" << endl; 
                 return false;
             }
         }
     }
-    cerr << "SEMANTIC Error at line " << currLine << ", position " << currPos << " : Undeclared \"" << var.substr(1, var.length() - 1) << "\" Used." << endl; 
+    cerr << "Semantic error at line " << currLine << ", position " << currPos << " : undeclared stuff \"" << var.substr(1, var.length() - 1) << "\"" << endl; 
     return false;
 }
 
@@ -821,8 +825,8 @@ bool in_arr_table(string var) {
     int currLine, currPos; 
     for (unsigned int i = 0; i < symbol_table.size(); i++) {
         if (symbol_table.at(i) == var) {
-            if (sym_type.at(i) == "INTEGER") {
-                file << "SEMANTIC Error at line " << currLine << ", position " << currPos << " : Incompatible Datatype - \"" << var.substr(1, var.length() - 1) << "\" is an INTEGER." << endl; 
+            if (sym_type.at(i) == "INT") {
+                file << "Semantic error at line " << currLine << ", position " << currPos << " : incorrect datatype \"" << var.substr(1, var.length() - 1) << "\"" << endl; 
                 return false;
             }
             
@@ -831,17 +835,17 @@ bool in_arr_table(string var) {
             }
         }
     }
-    cerr << "SEMANTIC Error at line " << currLine << ", position " << currPos << " : Undeclared \"" << var.substr(1, var.length() - 1) << "\" Used." << endl; 
+    cerr << "Semantic error at line " << currLine << ", position " << currPos << " : undeclared stuff \"" << var.substr(1, var.length() - 1) << "\"" << endl; 
     return false;
 }
 
-bool in_func_table(string var) {
+bool in_function_table(string var) {
     int currLine, currPos; 
-    for (unsigned int i = 0; i < func_table.size(); i++) {
-        if (func_table.at(i) == var) {
+    for (unsigned int i = 0; i < function_table.size(); i++) {
+        if (function_table.at(i) == var) {
             return true;
         }    
     }        
-    cerr << "SEMANTIC Error at line " << currLine << ", position " << currPos << " : Undeclared Function \"" << var << "\" Called." << endl; 
+    cerr << "Semantic error at line " << currLine << ", position " << currPos << " : undeclared function \"" << var << "\"" << endl; 
     return false;
 }
